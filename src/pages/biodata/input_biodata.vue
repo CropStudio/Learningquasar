@@ -10,55 +10,43 @@
                     filled
                     v-model="npm"
                     label="NPM"
+                    maxlength="15"
                     hint="NPM"
                     lazy-rules
-                    :rules="[ val => val && val.length > 0 || 'Please type your NPM']"
+                    :rules="[ val => val && val.length > 0 || 'Silahkan masukkan NPM']"
             />
             <q-input
                     filled
                     v-model="nama"
                     label="NAMA"
+                    :rules="[ val => val && val.length > 0 || 'Silahkan masukkan NAMA']"
+                    maxlength="30"
                     hint="NAMA"
-            />
-            <q-input
-                    filled
-                    v-model="prodi"
-                    label="PRODI"
-                    hint="PRODI"
-            />
-            <q-input
-                    filled
-                    v-model="ttl"
-                    label="TTL"
-                    hint="Tempat Tanggal Lahir"
             />
             <q-input
                     filled
                     v-model="alamat"
                     label="Alamat"
                     hint="Alamat"
+                    :rules="[ val => val && val.length > 0 || 'Silahkan masukkan Alamat']"
             />
             <q-input
                     filled
-                    v-model="email"
-                    label="Email"
-                    hint="Email"
-            />
-            <q-input
-                    filled
-                    v-model="nohp"
+                    v-model="notelp"
                     label="No Handphone"
+                    maxlength="15"
+                    :rules="[ val => val && val.length > 0 || 'Silahkan masukkan No Handphone']"
                     hint="No Handphone"
             />
-            <q-input
-                    filled
-                    v-model="nohportu"
-                    label="No Handphone Orang Tua"
-                    hint="No Handphone Orang Tua"
-            />
-
-            <q-toggle v-model="accept" label="I accept the license and terms" />
-
+            <q-input :rules="[ val => val && val.length > 0 || 'Silahkan masukkan Tanggal Lahyir', 'date']" filled v-model="tgl_lahir" mask="date" label="Tanggal Lahir">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                    <q-date v-model="tgl_lahir" @input="() => $refs.qDateProxy.hide()" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
             <div>
                 <q-btn label="Submit" type="submit" color="primary"/>
                 <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
@@ -72,36 +60,49 @@
 export default {
   data () {
     return {
-      name: null,
-      age: null,
-
-      accept: false
+      nama: '',
+      npm: '',
+      alamat: '',
+      notelp: '',
+      tgl_lahir: ''
     }
   },
 
   methods: {
     onSubmit () {
-      if (this.accept !== true) {
-        this.$q.notify({
-          color: 'red-5',
-          textColor: 'white',
-          icon: 'fas fa-exclamation-triangle',
-          message: 'You need to accept the license and terms first'
+      this.$q.loading.show()
+      this.$store.dispatch({
+        type: 'biodata/simpan',
+        nama: this.nama,
+        npm: this.npm,
+        alamat: this.alamat,
+        notelp: this.notelp,
+        tgl_lahir: this.tgl_lahir
+      })
+        .then((response) => {
+          this.$q.loading.hide()
+          if (response.success) {
+            this.$q.notify({
+              message: 'Berhasil simpan',
+              color: 'positive',
+              icon: 'checkmark'
+            })
+          } else {
+            this.$q.notify({
+              message: 'Gagal simpan',
+              color: 'negative',
+              icon: 'close'
+            })
+          }
         })
-      } else {
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'fas fa-check-circle',
-          message: 'Submitted'
-        })
-      }
     },
 
     onReset () {
-      this.name = null
-      this.age = null
-      this.accept = false
+      this.nama = ''
+      this.npm = ''
+      this.alamat = ''
+      this.no_telp = ''
+      this.tgl_lahir = ''
     }
   }
 }
